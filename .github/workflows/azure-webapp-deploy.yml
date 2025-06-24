@@ -1,0 +1,51 @@
+name: Build and Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release
+
+    - name: Publish
+      run: dotnet publish --configuration Release --output D:\a\MyMvcApp-Contact-Database-Application\bin\Release\net8.0\MyMvcApp
+
+    - name: Upload artifact for deployment
+      uses: actions/upload-artifact@v3
+      with:
+        name: MyMvcApp
+        path: D:\a\MyMvcApp-Contact-Database-Application\bin\Release\net8.0\MyMvcApp
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: MyMvcApp
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: mymvcapp
+        publish-profile: ${{ secrets.AzureWebAppPublishProfile }}
+        package: D:\a\MyMvcApp-Contact-Database-Application\bin\Release\net8.0\MyMvcApp
