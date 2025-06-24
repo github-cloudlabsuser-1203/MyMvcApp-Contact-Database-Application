@@ -25,13 +25,13 @@ jobs:
       run: dotnet build --configuration Release
 
     - name: Publish
-      run: dotnet publish --configuration Release --output D:\a\MyMvcApp-Contact-Database-Application\bin\Release\net8.0\MyMvcApp
+      run: dotnet publish --configuration Release --output D:\a\MyMvcApp-Contact-Database-Application\bin\Release\net9.0\MyMvcApp
 
     - name: Upload artifact for deployment
       uses: actions/upload-artifact@v4
       with:
         name: MyMvcApp
-        path: D:\a\MyMvcApp-Contact-Database-Application\bin\Release\net8.0\MyMvcApp
+        path: D:\a\MyMvcApp-Contact-Database-Application\bin\Release\net9.0\MyMvcApp
 
   deploy:
     runs-on: windows-latest
@@ -48,4 +48,4 @@ jobs:
       with:
         app-name: mymvcapp-ajith
         publish-profile: ${{ secrets.AzureWebAppPublishProfile }}
-        package: D:\a\MyMvcApp-Contact-Database-Application\bin\Release\net8.0\MyMvcApp
+        package: D:\a\MyMvcApp-Contact-Database-Application\bin\Release\net9.0\MyMvcApp
