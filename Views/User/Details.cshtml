@@ -1,34 +1,36 @@
 @model MyMvcApp.Models.User
 
 @{
-    ViewBag.Title = "Details";
+    ViewData["Title"] = "User Details";
 }
 
-<h2>Details</h2>
+<div class="container">
+    <h1 class="my-4">User Details</h1>
 
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Name)</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Name)</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Email)</dt>
+                <dd class="col-sm-10">
+                    <a href="mailto:@Model.Email">@Html.DisplayFor(model => model.Email)</a>
+                </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-
-    </dl>
+                <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Phone)</dt>
+                <dd class="col-sm-10">
+                    <a href="tel:@Model.Phone">@Html.DisplayFor(model => model.Phone)</a>
+                </dd>
+            </dl>
+        </div>
+        <div class="card-footer">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>

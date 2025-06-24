@@ -1,7 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using MyMvcApp.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Add EF Core with SQLite
+builder.Services.AddDbContext<UserDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 

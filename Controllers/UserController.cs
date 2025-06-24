@@ -1,66 +1,117 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using MyMvcApp.Models;
+using MyMvcApp.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace MyMvcApp.Controllers;
 
 public class UserController : Controller
 {
-    public static System.Collections.Generic.List<User> userlist = new System.Collections.Generic.List<User>();
+    private readonly UserDbContext _context;
 
-        // GET: User
-        public ActionResult Index()
+    public UserController(UserDbContext context)
+    {
+        _context = context;
+    }    // GET: User
+    public async Task<ActionResult> Index(string searchString)
+    {
+        var query = _context.Users.AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchString))
         {
-            // Implement the Index method here
+            searchString = searchString.ToLower();
+            query = query.Where(u => 
+                u.Name.ToLower().Contains(searchString) ||
+                u.Email.ToLower().Contains(searchString) ||
+                u.Phone.Contains(searchString));
         }
 
-        // GET: User/Details/5
-        public ActionResult Details(int id)
-        {
-            // Implement the details method here
-        }
+        var users = await query.ToListAsync();
+        ViewBag.CurrentSearch = searchString;
+        return View(users);
+    }
 
-        // GET: User/Create
-        public ActionResult Create()
+    // GET: User/Details/5
+    public async Task<ActionResult> Details(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
         {
-            //Implement the Create method here
+            return NotFound();
         }
+        return View(user);
+    }
 
-        // POST: User/Create
-        [HttpPost]
-        public ActionResult Create(User user)
-        {
-            // Implement the Create method (POST) here
-        }
+    // GET: User/Create
+    public ActionResult Create()
+    {
+        return View();
+    }
 
-        // GET: User/Edit/5
-        public ActionResult Edit(int id)
+    // POST: User/Create
+    [HttpPost]
+    public async Task<ActionResult> Create(User user)
+    {
+        if (ModelState.IsValid)
         {
-            // This method is responsible for displaying the view to edit an existing user with the specified ID.
-            // It retrieves the user from the userlist based on the provided ID and passes it to the Edit view.
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
         }
+        return View(user);
+    }
 
-        // POST: User/Edit/5
-        [HttpPost]
-        public ActionResult Edit(int id, User user)
+    // GET: User/Edit/5
+    public async Task<ActionResult> Edit(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
         {
-            // This method is responsible for handling the HTTP POST request to update an existing user with the specified ID.
-            // It receives user input from the form submission and updates the corresponding user's information in the userlist.
-            // If successful, it redirects to the Index action to display the updated list of users.
-            // If no user is found with the provided ID, it returns a HttpNotFoundResult.
-            // If an error occurs during the process, it returns the Edit view to display any validation errors.
+            return NotFound();
         }
+        return View(user);
+    }
 
-        // GET: User/Delete/5
-        public ActionResult Delete(int id)
+    // POST: User/Edit/5
+    [HttpPost]
+    public async Task<ActionResult> Edit(int id, User user)
+    {
+        if (id != user.Id)
         {
-            // Implement the Delete method here
+            return BadRequest();
         }
+        if (ModelState.IsValid)
+        {
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+        return View(user);
+    }
 
-        // POST: User/Delete/5
-        [HttpPost]
-        public ActionResult Delete(int id, IFormCollection collection)
+    // GET: User/Delete/5
+    public async Task<ActionResult> Delete(int id)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
         {
-            // Implement the Delete method (POST) here
+            return NotFound();
         }
+        return View(user);
+    }
+
+    // POST: User/Delete/5
+    [HttpPost]
+    public async Task<ActionResult> Delete(int id, IFormCollection collection)
+    {
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+        return RedirectToAction("Index");
+    }
 }
